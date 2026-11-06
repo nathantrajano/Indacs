@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import {
   Search,
   X,
@@ -11,7 +11,9 @@ import {
   Clock,
   ArrowRight,
   BookOpen,
-  ShieldAlert
+  ShieldAlert,
+  Mic,
+  MicOff
 } from 'lucide-react';
 import {
   APP_METADATA,
@@ -33,7 +35,41 @@ const normalizeText = (str = '') =>
   str
     .toLowerCase()
     .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '');
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[.,!?;:"'()[\]{}]/g, ' ');
+
+const PT_STOPWORDS = new Set([
+  'o', 'a', 'os', 'as', 'um', 'uma', 'uns', 'umas',
+  'de', 'do', 'da', 'dos', 'das', 'em', 'no', 'na', 'nos', 'nas',
+  'por', 'para', 'com', 'sem', 'sob', 'sobre', 'ate', 'entre',
+  'que', 'qual', 'quais', 'como', 'quando', 'onde', 'quem',
+  'e', 'ou', 'mas', 'se', 'ao', 'aos', 'pelo', 'pela',
+  'fazer', 'preciso', 'saber', 'hoje', 'quero', 'ver', 'mostrar',
+  'buscar', 'procurar', 'filtrar', 'abrir', 'me', 'mostra', 'fale',
+  'diga', 'orientacao', 'duvida', 'sobre', 'indicador', 'competencia',
+  'nota', 'metodologica', 'cartilha', 'indacs', 'favor', 'bom', 'dia',
+  'tarde', 'noite', 'ola', 'oi'
+]);
+
+const preprocessVoiceAndTextQuery = (raw = '') => {
+  let text = normalizeText(raw);
+  // Map spoken indicator numbers/names (e.g. "c 2", "indicador dois", "competencia 4")
+  const numberWords = {
+    um: '1',
+    dois: '2',
+    duas: '2',
+    tres: '3',
+    quatro: '4',
+    cinco: '5',
+    seis: '6',
+    sete: '7'
+  };
+  Object.entries(numberWords).forEach(([word, digit]) => {
+    text = text.replace(new RegExp(`\\b(c|indicador|competencia|nota)\\s+${word}\\b`, 'g'), `c${digit}`);
+  });
+  text = text.replace(/\b(c|indicador|competencia|nota)\s+([1-7])\b/g, 'c$2');
+  return text.trim();
+};
 
 export default function App() {
   // Navigation state: 'tela1' | 'tela2_cenarios' | 'tela3_calendario' | 'oficina'
@@ -41,8 +77,106 @@ export default function App() {
   const [selectedIndicator, setSelectedIndicator] = useState(null);
   const [initialModalTab, setInitialModalTab] = useState('orientacao');
 
-  // Search state on Tela 1
+  // Search & Voice Filter state on Tela 1
   const [searchQuery, setSearchQuery] = useState('');
+  const [isListeningVoice, setIsListeningVoice] = useState(false);
+  const [voiceFeedback, setVoiceFeedback] = useState('');
+  const [voiceError, setVoiceError] = useState('');
+  const recognitionRef = useRef(null);
+
+  const isVoiceSupported = useMemo(() => {
+    if (typeof window === 'undefined') return false;
+    return Boolean(window.SpeechRecognition || window.webkitSpeechRecognition);
+  }, []);
+
+  const stopVoiceSearch = () => {
+    if (recognitionRef.current) {
+      try {
+        recognitionRef.current.stop();
+      } catch {
+        // Ignore stop errors
+      }
+    }
+    setIsListeningVoice(false);
+  };
+
+  const handleToggleVoiceSearch = () => {
+    setVoiceError('');
+    if (isListeningVoice) {
+      stopVoiceSearch();
+      setVoiceFeedback('');
+      return;
+    }
+
+    const SpeechRecognitionAPI =
+      typeof window !== 'undefined' &&
+      (window.SpeechRecognition || window.webkitSpeechRecognition);
+
+    if (!SpeechRecognitionAPI) {
+      setVoiceError(
+        'Seu navegador não suporta busca por voz nativa. Tente usar o Google Chrome ou Safari no celular, ou toque nas sugestões rápidas abaixo.'
+      );
+      return;
+    }
+
+    try {
+      const recognition = new SpeechRecognitionAPI();
+      recognition.lang = 'pt-BR';
+      recognition.interimResults = true;
+      recognition.maxAlternatives = 1;
+      recognition.continuous = false;
+
+      recognition.onstart = () => {
+        setIsListeningVoice(true);
+        setVoiceFeedback('Ouvindo sua voz... Fale o que procura (ex.: "diabetes", "recém-nascido", "vacina HPV", "C2").');
+      };
+
+      recognition.onresult = (event) => {
+        let transcript = '';
+        for (let i = 0; i < event.results.length; i++) {
+          transcript += event.results[i][0].transcript;
+        }
+        const cleaned = transcript.replace(/[.,!?]+$/g, '').trim();
+        setSearchQuery(cleaned);
+        setVoiceFeedback(`Filtrando por voz: “${cleaned}”`);
+      };
+
+      recognition.onerror = (event) => {
+        setIsListeningVoice(false);
+        if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
+          setVoiceError(
+            'Permissão de microfone negada. Toque no ícone de cadeado na barra de endereço do navegador para permitir o microfone.'
+          );
+        } else if (event.error === 'no-speech') {
+          setVoiceError('Nenhuma fala detectada. Toque no microfone e fale próximo ao aparelho.');
+        } else {
+          setVoiceError('Não foi possível capturar o áudio. Tente novamente ou digite na barra.');
+        }
+      };
+
+      recognition.onend = () => {
+        setIsListeningVoice(false);
+      };
+
+      recognitionRef.current = recognition;
+      recognition.start();
+    } catch {
+      setIsListeningVoice(false);
+      setVoiceError('Não foi possível iniciar o microfone neste dispositivo.');
+    }
+  };
+
+  useEffect(() => {
+    return () => {
+      if (recognitionRef.current) {
+        try {
+          recognitionRef.current.stop();
+        } catch {
+          // Ignore
+        }
+      }
+    };
+  }, []);
 
   // Shared device / Demo mode (no persistent localStorage)
   const [isDemoSharedMode, setIsDemoSharedMode] = useState(false);
@@ -111,14 +245,17 @@ export default function App() {
     }
   }, [isModuleDisabled, isDemoSharedMode]);
 
-  // Search filtering across C1–C7
+  // Search & Voice filtering across C1–C7
   const filteredIndicators = useMemo(() => {
-    const q = normalizeText(searchQuery.trim());
-    if (!q) return INDICATORS;
+    const processed = preprocessVoiceAndTextQuery(searchQuery);
+    if (!processed) return INDICATORS;
 
-    const terms = q.split(/\s+/).filter(Boolean);
-    return INDICATORS.filter((ind) => {
-      const searchableCorpus = normalizeText(
+    const rawTerms = processed.split(/\s+/).filter(Boolean);
+    const meaningfulTerms = rawTerms.filter((t) => !PT_STOPWORDS.has(t));
+    const terms = meaningfulTerms.length > 0 ? meaningfulTerms : rawTerms;
+
+    const buildCorpus = (ind) =>
+      normalizeText(
         [
           ind.code,
           ind.shortTitle,
@@ -134,8 +271,25 @@ export default function App() {
           ind.scenario?.context
         ].join(' ')
       );
-      return terms.every((t) => searchableCorpus.includes(t));
+
+    // First try strict AND match of all meaningful terms
+    const strictMatches = INDICATORS.filter((ind) => {
+      const corpus = buildCorpus(ind);
+      return terms.every((t) => corpus.includes(t));
     });
+
+    if (strictMatches.length > 0) return strictMatches;
+
+    // Fallback for long spoken sentences: rank by number of matching terms
+    const scored = INDICATORS.map((ind) => {
+      const corpus = buildCorpus(ind);
+      const matchCount = terms.filter((t) => corpus.includes(t)).length;
+      return { ind, matchCount };
+    })
+      .filter((item) => item.matchCount > 0)
+      .sort((a, b) => b.matchCount - a.matchCount);
+
+    return scored.map((item) => item.ind);
   }, [searchQuery]);
 
   // Handlers for Indicator Selection
@@ -367,18 +521,43 @@ export default function App() {
             {/* ========================================================= */}
             {activeScreen === 'tela1' && (
               <div className="space-y-6">
-                {/* Search Box by Routine Words */}
+                {/* Search Box by Routine Words & Voice Filter */}
                 <section
-                  aria-label="Pesquisa rápida na rotina do ACS"
+                  aria-label="Pesquisa rápida por texto ou voz na rotina do ACS"
                   className="rounded-3xl border-2 border-indacs-primary/25 bg-indacs-creamCard p-4 sm:p-6 shadow-sm"
                 >
                   <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
-                    <h2 className="text-lg sm:text-xl font-extrabold text-indacs-ink">
-                      O que preciso saber hoje?
-                    </h2>
-                    <span className="text-xs font-semibold text-indacs-muted">
-                      Toque em um cartão C1–C7 ou busque por palavras da rotina
-                    </span>
+                    <div>
+                      <h2 className="text-lg sm:text-xl font-extrabold text-indacs-ink">
+                        O que preciso saber hoje?
+                      </h2>
+                      <p className="text-xs font-semibold text-indacs-muted">
+                        Toque em um cartão C1–C7, digite ou use o <strong>filtro por voz</strong>
+                      </p>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={handleToggleVoiceSearch}
+                      aria-pressed={isListeningVoice}
+                      className={`inline-flex items-center gap-2 rounded-2xl px-4 py-2.5 text-xs sm:text-sm font-extrabold shadow-sm transition active:scale-[0.98] ${
+                        isListeningVoice
+                          ? 'bg-red-600 text-white animate-pulse ring-4 ring-red-400/40'
+                          : 'bg-indacs-primary text-white hover:bg-indacs-dark'
+                      }`}
+                    >
+                      {isListeningVoice ? (
+                        <>
+                          <MicOff className="h-4 w-4 shrink-0" />
+                          <span>Parar escuta de voz</span>
+                        </>
+                      ) : (
+                        <>
+                          <Mic className="h-4 w-4 shrink-0" />
+                          <span>Filtrar por Voz</span>
+                        </>
+                      )}
+                    </button>
                   </div>
 
                   <div className="relative mt-2">
@@ -386,22 +565,116 @@ export default function App() {
                     <input
                       type="search"
                       value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      placeholder="Buscar por palavra da rotina (ex.: recém-nascido, 30 dias, pé diabético, ferida, vacina, gestante, idoso...)"
-                      aria-label="Buscar orientação nos 7 indicadores"
-                      className="w-full rounded-2xl border-2 border-indacs-primary/35 bg-white py-3.5 pl-12 pr-11 text-sm sm:text-base font-medium text-indacs-ink placeholder:text-indacs-muted/70 focus:border-indacs-primary focus:outline-none shadow-inner"
+                      onChange={(e) => {
+                        setSearchQuery(e.target.value);
+                        if (!e.target.value) setVoiceFeedback('');
+                      }}
+                      placeholder="Digite ou toque no microfone para falar (ex.: recém-nascido, 30 dias, pé diabético, vacina...)"
+                      aria-label="Buscar orientação nos 7 indicadores por texto ou voz"
+                      className={`w-full rounded-2xl border-2 bg-white py-3.5 pl-12 pr-24 text-sm sm:text-base font-medium text-indacs-ink placeholder:text-indacs-muted/70 focus:outline-none shadow-inner transition ${
+                        isListeningVoice
+                          ? 'border-red-500 ring-2 ring-red-300'
+                          : 'border-indacs-primary/35 focus:border-indacs-primary'
+                      }`}
                     />
-                    {searchQuery && (
+                    <div className="absolute right-2.5 top-1/2 -translate-y-1/2 flex items-center gap-1">
+                      {searchQuery && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSearchQuery('');
+                            setVoiceFeedback('');
+                          }}
+                          aria-label="Limpar busca"
+                          title="Limpar busca"
+                          className="rounded-xl bg-indacs-cream p-2 text-indacs-ink hover:bg-indacs-primary hover:text-white transition"
+                        >
+                          <X className="h-4 w-4" />
+                        </button>
+                      )}
                       <button
                         type="button"
-                        onClick={() => setSearchQuery('')}
-                        aria-label="Limpar busca"
-                        className="absolute right-3 top-1/2 -translate-y-1/2 rounded-xl bg-indacs-cream p-1.5 text-indacs-ink hover:bg-indacs-primary hover:text-white"
+                        onClick={handleToggleVoiceSearch}
+                        aria-label={isListeningVoice ? 'Parar filtro por voz' : 'Ativar filtro por voz'}
+                        title={
+                          isVoiceSupported
+                            ? 'Falar para filtrar os indicadores (pt-BR)'
+                            : 'Filtro por voz'
+                        }
+                        className={`rounded-xl p-2 transition ${
+                          isListeningVoice
+                            ? 'bg-red-600 text-white animate-pulse'
+                            : 'bg-indacs-cream text-indacs-primary hover:bg-indacs-primary hover:text-white'
+                        }`}
                       >
-                        <X className="h-4 w-4" />
+                        {isListeningVoice ? (
+                          <MicOff className="h-4 w-4" />
+                        ) : (
+                          <Mic className="h-4 w-4" />
+                        )}
                       </button>
-                    )}
+                    </div>
                   </div>
+
+                  {/* Live Voice Listening Status / Error Feedback */}
+                  {isListeningVoice && (
+                    <div
+                      role="status"
+                      aria-live="polite"
+                      className="mt-3 flex items-center justify-between gap-2 rounded-2xl border-2 border-red-300 bg-red-50 px-3.5 py-2.5 text-xs sm:text-sm font-bold text-red-950"
+                    >
+                      <div className="flex items-center gap-2">
+                        <span className="h-3 w-3 rounded-full bg-red-600 animate-ping shrink-0" />
+                        <span>{voiceFeedback || 'Ouvindo... Fale agora perto do microfone.'}</span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={stopVoiceSearch}
+                        className="rounded-lg bg-red-600 px-2.5 py-1 text-xs font-extrabold text-white hover:bg-red-700"
+                      >
+                        Concluir
+                      </button>
+                    </div>
+                  )}
+
+                  {!isListeningVoice && voiceFeedback && searchQuery && (
+                    <div
+                      role="status"
+                      className="mt-2.5 flex items-center justify-between gap-2 rounded-xl bg-indacs-creamLight border border-indacs-primary/25 px-3 py-1.5 text-xs font-semibold text-indacs-dark"
+                    >
+                      <span className="flex items-center gap-1.5">
+                        <Mic className="h-3.5 w-3.5 text-indacs-primary" />
+                        {voiceFeedback} ({filteredIndicators.length}{' '}
+                        {filteredIndicators.length === 1 ? 'indicador encontrado' : 'indicadores encontrados'})
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSearchQuery('');
+                          setVoiceFeedback('');
+                        }}
+                        className="underline font-bold text-indacs-primary"
+                      >
+                        Limpar filtro
+                      </button>
+                    </div>
+                  )}
+
+                  {voiceError && (
+                    <div
+                      role="alert"
+                      className="mt-2.5 flex items-center justify-between gap-2 rounded-xl border border-amber-300 bg-amber-50 px-3.5 py-2 text-xs font-semibold text-amber-950"
+                    >
+                      <span>{voiceError}</span>
+                      <button
+                        type="button"
+                        onClick={() => setVoiceError('')}
+                        className="font-bold underline"
+                      >
+                        Fechar
+                      </button>
+                    </div>
+                  )}
 
                   {/* Quick Routine Chips */}
                   <div className="mt-3 flex items-center gap-1.5 overflow-x-auto pb-1">
@@ -412,11 +685,12 @@ export default function App() {
                       <button
                         key={idx}
                         type="button"
-                        onClick={() =>
+                        onClick={() => {
+                          setVoiceFeedback('');
                           setSearchQuery(
                             searchQuery === chip.query ? '' : chip.query
-                          )
-                        }
+                          );
+                        }}
                         className={`shrink-0 rounded-full px-3 py-1.5 text-xs font-bold transition ${
                           searchQuery === chip.query
                             ? 'bg-indacs-primary text-white shadow-sm'
