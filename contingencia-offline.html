@@ -1,0 +1,343 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>INDACS 2.0 (Contingência Local Offline) • PET Saúde Digital UFCG</title>
+  <style>
+    :root {
+      --green-dark: #0F4D25;
+      --green-primary: #145E2F;
+      --green-medium: #1E7A3E;
+      --green-light: #68B63E;
+      --cream-bg: #E2EFD7;
+      --cream-light: #F3F8EE;
+      --cream-card: #FAFDF7;
+      --ink: #132A1C;
+      --muted: #3B5945;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--cream-bg);
+      color: var(--ink);
+      line-height: 1.45;
+    }
+    .ribbon {
+      background: var(--green-dark);
+      color: var(--cream-bg);
+      text-align: center;
+      padding: 6px 12px;
+      font-size: 12px;
+    }
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 16px;
+    }
+    header {
+      background: var(--green-primary);
+      color: #fff;
+      border-radius: 24px;
+      padding: 20px;
+      margin-bottom: 16px;
+      box-shadow: 0 4px 12px rgba(15, 77, 37, 0.18);
+    }
+    header h1 { margin: 4px 0; font-size: 28px; }
+    header p { margin: 4px 0 12px; font-size: 14px; color: var(--cream-bg); }
+    .nav-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    button {
+      cursor: pointer;
+      font-family: inherit;
+      min-height: 44px;
+      border-radius: 12px;
+      border: none;
+      font-weight: 700;
+      font-size: 14px;
+      padding: 10px 14px;
+      transition: all 0.15s ease;
+    }
+    .tab-btn {
+      background: rgba(255,255,255,0.14);
+      color: #fff;
+    }
+    .tab-btn.active {
+      background: var(--cream-bg);
+      color: var(--green-dark);
+    }
+    .card {
+      background: var(--cream-card);
+      border: 2px solid rgba(20, 94, 47, 0.22);
+      border-radius: 20px;
+      padding: 16px;
+      margin-bottom: 14px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+    }
+    .badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 800;
+    }
+    .badge-valid { background: #D1FAE5; color: #065F46; border: 1px solid #6EE7B7; }
+    .badge-rev { background: #FEF3C7; color: #92400E; border: 1px solid #FCD34D; }
+    .search-input {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 14px;
+      border: 2px solid var(--green-primary);
+      font-size: 15px;
+      margin-top: 8px;
+    }
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 14px;
+    }
+    .btn-primary { background: var(--green-primary); color: #fff; }
+    .btn-outline { background: #fff; color: var(--green-primary); border: 2px solid var(--green-primary); }
+    .cal-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 6px;
+      margin-top: 10px;
+    }
+    .cal-day {
+      background: #fff;
+      border: 2px solid rgba(20,94,47,0.2);
+      border-radius: 12px;
+      min-height: 54px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px;
+    }
+    .cal-day.marked {
+      background: var(--cream-light);
+      border-color: var(--green-primary);
+    }
+    .x-mark {
+      font-size: 20px;
+      font-weight: 900;
+      color: var(--green-primary);
+    }
+    .opt-btn {
+      display: block;
+      width: 100%;
+      text-align: left;
+      margin-top: 8px;
+      background: var(--cream-light);
+      color: var(--ink);
+      border: 2px solid rgba(20,94,47,0.25);
+    }
+    .feedback-ok { background: #ECFDF5; border: 2px solid #059669; color: #064E3B; padding: 12px; border-radius: 12px; margin-top: 10px; }
+    .feedback-warn { background: #FFFBEB; border: 2px solid #D97706; color: #78350F; padding: 12px; border-radius: 12px; margin-top: 10px; }
+  </style>
+</head>
+<body>
+  <div class="ribbon">
+    <strong>INDACS 2.0 • Versão Local Estável de Contingência (Funciona 100% Offline sem servidor)</strong> • Protótipo educativo (GAT 8 / PET Saúde Digital UFCG)
+  </div>
+
+  <div class="container">
+    <header>
+      <div style="font-size:12px;font-weight:700;opacity:0.9;">GAT 8 | PET Saúde Digital – UFCG • Kalilka &amp; Nathan</div>
+      <h1>Indacs 2.0 <span style="font-size:16px;font-weight:600;">(Contingência Offline)</span></h1>
+      <p>Cartilha interativa dos indicadores de qualidade da APS para Agentes Comunitários de Saúde</p>
+      <div class="nav-tabs">
+        <button class="tab-btn active" id="tab-t1" onclick="showTab('t1')">Tela 1: Indicadores C1–C7</button>
+        <button class="tab-btn" id="tab-t2" onclick="showTab('t2')">Tela 2: Situações C2 e C4</button>
+        <button class="tab-btn" id="tab-t3" onclick="showTab('t3')">Telas 3 e 4: Jornadas que Cuidam (X)</button>
+      </div>
+    </header>
+
+    <div id="welcome-bridge" class="card" style="display:none; border-color: var(--green-primary); background: var(--cream-light);">
+      <div style="font-size:11px;font-weight:800;color:var(--green-primary);text-transform:uppercase;">Tela 4 • A ponte para a próxima jornada</div>
+      <div style="font-weight:800;font-size:16px;margin-top:2px;">Intenção guardada para sua jornada (sem metas nem cobrança):</div>
+      <p id="welcome-bridge-text" style="font-style:italic;font-weight:700;color:var(--green-dark);margin:8px 0;"></p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="btn-outline" onclick="clearIntention()">Deixar ir / Abandonar</button>
+        <button class="btn-outline" onclick="document.getElementById('welcome-bridge').style.display='none'">Ocultar</button>
+      </div>
+    </div>
+
+    <!-- TELA 1 -->
+    <section id="sec-t1">
+      <div class="card">
+        <label for="q-input" style="font-weight:800;font-size:17px;">O que preciso saber hoje?</label>
+        <input id="q-input" class="search-input" type="search" placeholder="Buscar por palavra da rotina (ex.: 30 dias, recém-nascido, diabetes, pés, vacina, gestante, idoso, HPV...)" oninput="renderCards()" />
+      </div>
+      <div id="cards-container" class="grid-2"></div>
+    </section>
+
+    <!-- TELA 2 -->
+    <section id="sec-t2" style="display:none;">
+      <div class="card">
+        <span class="badge badge-valid">Caso Prioritário Validado • C2 Desenvolvimento Infantil</span>
+        <h2 style="margin:8px 0 4px;">Visita ao bebê recém-nascido com 18 dias de vida</h2>
+        <p style="font-size:14px;">Em visita à casa de Dona Camila (caso fictício), o bebê Lucas tem 18 dias. A mãe ainda não agendou a 1ª consulta na UBS nem atualizou o cadastro porque pensou em esperar os 2 meses, e pede para você "passar uma pomada no umbigo vermelho".</p>
+        <ul style="font-size:13px;">
+          <li><strong>O que observar:</strong> Idade (18 dias — dentro dos primeiros 30 dias), cadastro, Caderneta da Criança, ausência da 1ª consulta e sinal de alerta no coto umbilical.</li>
+          <li><strong>O que cabe ao ACS:</strong> Realizar a 1ª visita até o 30º dia de vida (e a 2ª até os 6 meses, registrando no MIVDT como "recém-nascido" ou "criança"), atualizar cadastro, conferir vacinas e orientar sem prescrever conduta.</li>
+          <li><strong>Quando comunicar à equipe:</strong> Imediatamente, para viabilizar a 1ª consulta médica/enfermagem até o 30º dia e avaliar o umbigo.</li>
+          <li><strong>Fonte exata:</strong> Cartilha INDACS, pág. 3 • Nota Metodológica C2 (SEI 0054824593), Seção 3, item 16-A/D e Seção 4, Quadro 01 e Quadro 04 (págs. 2, 5 e 6).</li>
+        </ul>
+        <p style="font-weight:800;font-size:14px;">Pergunta: Como o ACS deve agir nesta visita?</p>
+        <button class="opt-btn" onclick="showFeedback('c2', false, 'Incorreto! O ACS nunca prescreve pomadas ou condutas clínicas, e esperar 2 meses perderia a janela de 30 dias da 1ª consulta (Nota C2, Boa Prática A).')">A) Indicar uma pomada e dizer que pode levar o bebê à UBS só aos 2 meses.</button>
+        <button class="opt-btn" onclick="showFeedback('c2', true, 'Correto! Você cumpriu a 1ª visita até os 30 dias (Nota C2, Quadro 04), respeitou os limites do ACS (não prescreveu conduta) e acionou a equipe para a consulta de até 30 dias.')">B) Atualizar cadastro, conferir Caderneta, registrar a 1ª visita (até 30 dias), orientar sem prescrever e comunicar imediatamente à equipe.</button>
+        <div id="fb-c2"></div>
+      </div>
+
+      <div class="card">
+        <span class="badge badge-valid">Caso Prioritário Validado • C4 Pessoa com Diabetes</span>
+        <h2 style="margin:8px 0 4px;">Moradora com diabetes que relata ferida no pé e parada do remédio</h2>
+        <p style="font-size:14px;">Dona Severina (62 anos, caso fictício) parou o remédio há 2 semanas por "não sentir nada", não passa em consulta há 8 meses e mostra uma rachadura com pequena ferida no pé direito que quase não dói.</p>
+        <ul style="font-size:13px;">
+          <li><strong>O que observar:</strong> Abandono medicamentoso, ferida no pé sem dor (sinal de risco!), atraso na consulta semestral e intervalo mínimo de 30 dias entre as 2 visitas anuais do indicador.</li>
+          <li><strong>O que cabe ao ACS:</strong> Perguntar sobre feridas/rachaduras nos pés, verificar uso de medicamentos, orientar continuidade do cuidado, registrar visita no MIVDT e comunicar risco à equipe.</li>
+          <li><strong>Limites normativos (Nota C4):</strong> O exame clínico do pé diabético (SIGTAP 03.01.04.009-5, Quadro 07) é privativo de médicos, enfermeiros, fisioterapeutas, farmacêuticos e terapeutas ocupacionais. O ACS nunca manipula feridas nem altera doses.</li>
+          <li><strong>Fonte exata:</strong> Cartilha INDACS, pág. 5 • Nota Metodológica C4 (SEI 0055986848), Seção 3, item 16-D e Seção 4, Quadros 01, 05 e 07 (págs. 2, 4 e 6).</li>
+        </ul>
+        <p style="font-weight:800;font-size:14px;">Pergunta: Qual é a decisão correta do ACS?</p>
+        <button class="opt-btn" onclick="showFeedback('c4', false, 'Atenção! O exame clínico do pé diabético (Quadro 07 da Nota C4) e o ajuste de medicamentos não cabem ao ACS.')">A) Fazer o exame clínico do pé diabético no domicílio e mandar tomar metade do comprimido.</button>
+        <button class="opt-btn" onclick="showFeedback('c4', true, 'Excelente! Ao ACS cabe perguntar sobre feridas/rachaduras nos pés, verificar uso de medicamentos, realizar ao menos 2 visitas em 12 meses (intervalo mín. 30 dias) e comunicar imediatamente o sinal de risco à equipe.')">B) Observar o relato da ferida e parada do remédio, orientar sem prescrever conduta, registrar a visita e comunicar imediatamente o risco à equipe.</button>
+        <div id="fb-c4"></div>
+      </div>
+    </section>
+
+    <!-- TELA 3 & 4 -->
+    <section id="sec-t3" style="display:none;">
+      <div class="card">
+        <h2 style="margin:0 0 6px;">Meu Calendário “Jornadas que Cuidam” (Novembro 2026)</h2>
+        <p style="font-size:13px;color:var(--muted);margin:0 0 8px;">O <strong>X</strong> significa <strong>“reconheço minha jornada”</strong> — nunca metas, frequência ou vigilância. Toque em qualquer dia para marcar ou desmarcar o X.</p>
+        <div id="cal-grid" class="cal-grid"></div>
+      </div>
+
+      <div class="card">
+        <h3 style="margin:0 0 6px;">Tela 4 • A ponte para a próxima jornada</h3>
+        <p style="font-size:13px;color:var(--muted);margin:0 0 8px;">“O que você gostaria de levar para a próxima jornada?” (Salvo apenas neste navegador; nunca insira dados de pacientes).</p>
+        <input id="intention-input" class="search-input" type="text" placeholder="Ex.: Escutar com calma antes de orientar..." />
+        <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;">
+          <button class="btn-primary" onclick="saveIntention()">Guardar intenção</button>
+          <button class="btn-outline" onclick="clearAllLocal()">Apagar todos os registros</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const DATA = [
+      { code:'C1', title:'Mais acesso à APS', status:'rev', meta:'Organizar acesso no território, identificar faltosos e orientar consultas programadas mesmo sem sintomas.', fonte:'Cartilha pág. 2 • Nota C1 (SEI 0054814890), Quadro 01.' },
+      { code:'C2', title:'Desenvolvimento infantil', status:'valid', meta:'Boa Prática D: 2 visitas do ACS para crianças até 2 anos (1ª até 30 dias de vida; 2ª até 6 meses). Conferir vacinas e cadastro.', fonte:'Cartilha pág. 3 • Nota C2 (SEI 0054824593), Quadros 01 e 04.' },
+      { code:'C3', title:'Gestação e puerpério', status:'rev', meta:'Pelo menos 3 visitas na gestação (após 1ª consulta) e 1 visita no puerpério (até 42 dias após o parto).', fonte:'Cartilha pág. 4 • Nota C3 (SEI 0054619475), Quadros 01 e 05.' },
+      { code:'C4', title:'Pessoa com diabetes', status:'valid', meta:'Boa Prática D: pelo menos 2 visitas em 12 meses (intervalo mín. 30 dias). Verificar medicamentos, perguntar sobre feridas nos pés e comunicar riscos.', fonte:'Cartilha pág. 5 • Nota C4 (SEI 0055986848), Quadros 01, 05 e 07.' },
+      { code:'C5', title:'Pessoa com hipertensão', status:'rev', meta:'Pelo menos 2 visitas em 12 meses (intervalo mín. 30 dias). Orientar cuidado mesmo sem sintomas e verificar medicamentos.', fonte:'Cartilha pág. 6 • Nota C5 (SEI 0056042518), Quadros 01 e 05.' },
+      { code:'C6', title:'Pessoa idosa', status:'rev', meta:'Pelo menos 2 visitas em 12 meses (intervalo mín. 30 dias) para pessoas ≥ 60 anos. Observar risco de quedas, isolamento, cuidador e vacina influenza.', fonte:'Cartilha pág. 7 • Nota C6 (SEI 0056053813), Quadros 01 e 04.' },
+      { code:'C7', title:'Mulher na prevenção do câncer', status:'rev', meta:'Sem nº fixo de visitas na nota. Foco em busca ativa: HPV (9–14 anos), saúde sexual/reprodutiva (14–69), colo do útero (25–64) e mama (50–69), incluindo homens transgênero.', fonte:'Cartilha págs. 8–9 • Nota C7 (SEI 0054641718), Quadro 01.' }
+    ];
+
+    function showTab(t) {
+      ['t1','t2','t3'].forEach(id => {
+        document.getElementById('sec-' + id).style.display = (id === t) ? 'block' : 'none';
+        document.getElementById('tab-' + id).classList.toggle('active', id === t);
+      });
+    }
+
+    function renderCards() {
+      const q = (document.getElementById('q-input').value || '').toLowerCase();
+      const box = document.getElementById('cards-container');
+      box.innerHTML = '';
+      DATA.filter(d => (d.code + ' ' + d.title + ' ' + d.meta + ' ' + d.fonte).toLowerCase().includes(q)).forEach(d => {
+        const div = document.createElement('div');
+        div.className = 'card';
+        div.innerHTML = `
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
+            <strong style="font-size:18px;color:var(--green-primary);">${d.code} • ${d.title}</strong>
+            <span class="badge ${d.status === 'valid' ? 'badge-valid' : 'badge-rev'}">${d.status === 'valid' ? '✓ Validado' : '⏳ Em revisão'}</span>
+          </div>
+          <p style="font-size:14px;margin:8px 0;">${d.meta}</p>
+          <div style="font-size:12px;color:var(--muted);"><strong>Fonte:</strong> ${d.fonte}</div>
+        `;
+        box.appendChild(div);
+      });
+    }
+
+    function showFeedback(id, ok, text) {
+      const el = document.getElementById('fb-' + id);
+      el.className = ok ? 'feedback-ok' : 'feedback-warn';
+      el.innerHTML = '<strong>' + (ok ? '✓ Conduta segura: ' : '⚠ Atenção: ') + '</strong>' + text;
+    }
+
+    function getMarks() {
+      try { return JSON.parse(localStorage.getItem('indacs2_contingency_marks') || '{}'); } catch { return {}; }
+    }
+
+    function toggleDay(d) {
+      const m = getMarks();
+      m[d] = !m[d];
+      try { localStorage.setItem('indacs2_contingency_marks', JSON.stringify(m)); } catch {}
+      renderCal();
+    }
+
+    function renderCal() {
+      const m = getMarks();
+      const grid = document.getElementById('cal-grid');
+      grid.innerHTML = '';
+      for (let d = 1; d <= 30; d++) {
+        const btn = document.createElement('button');
+        btn.className = 'cal-day' + (m[d] ? ' marked' : '');
+        btn.onclick = () => toggleDay(d);
+        btn.innerHTML = `<span style="font-size:12px;">${d}/11</span><span class="x-mark">${m[d] ? '✕' : ''}</span>`;
+        grid.appendChild(btn);
+      }
+    }
+
+    function saveIntention() {
+      const val = document.getElementById('intention-input').value.trim();
+      if (!val) return;
+      try { localStorage.setItem('indacs2_contingency_intention', val); } catch {}
+      loadIntention();
+      alert('Intenção guardada para a próxima jornada!');
+    }
+
+    function loadIntention() {
+      try {
+        const val = localStorage.getItem('indacs2_contingency_intention');
+        const box = document.getElementById('welcome-bridge');
+        if (val) {
+          box.style.display = 'block';
+          document.getElementById('welcome-bridge-text').textContent = '“' + val + '”';
+        } else {
+          box.style.display = 'none';
+        }
+      } catch {}
+    }
+
+    function clearIntention() {
+      try { localStorage.removeItem('indacs2_contingency_intention'); } catch {}
+      loadIntention();
+    }
+
+    function clearAllLocal() {
+      try {
+        localStorage.removeItem('indacs2_contingency_marks');
+        localStorage.removeItem('indacs2_contingency_intention');
+      } catch {}
+      document.getElementById('intention-input').value = '';
+      renderCal();
+      loadIntention();
+    }
+
+    renderCards();
+    renderCal();
+    loadIntention();
+  </script>
+</body>
+</html>
