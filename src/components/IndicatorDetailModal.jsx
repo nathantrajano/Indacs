@@ -1,9 +1,6 @@
 import React, { useState } from 'react';
 import {
   ArrowLeft,
-  CheckCircle2,
-  AlertTriangle,
-  HelpCircle,
   Scale,
   ChevronDown,
   ChevronUp,
@@ -23,18 +20,13 @@ function CartilhaCheckItem({ text }) {
 
 export default function IndicatorDetailModal({
   indicator,
-  initialTab = 'orientacao',
   onClose
 }) {
-  const [showScenario, setShowScenario] = useState(initialTab === 'cenario');
   const [showLimits, setShowLimits] = useState(false);
-  const [selectedOptionId, setSelectedOptionId] = useState(null);
 
   if (!indicator) return null;
 
   const s = indicator.cartilhaSections || {};
-  const scenario = indicator.scenario;
-  const selectedOption = scenario?.options?.find((o) => o.id === selectedOptionId);
 
   return (
     <div className="mx-auto max-w-3xl pb-8">
@@ -245,27 +237,13 @@ export default function IndicatorDetailModal({
           />
         </div>
 
-        {/* Clean Action Buttons at the Bottom of the Cartilha Sheet */}
-        <div className="relative z-20 bg-indacs-primary/95 px-4 py-3.5 text-white">
-          <div className="mx-auto max-w-xl flex flex-wrap items-center justify-center gap-2.5">
-            <button
-              type="button"
-              onClick={() => setShowScenario((v) => !v)}
-              className="inline-flex items-center gap-1.5 rounded-full bg-indacs-cream px-4 py-2 text-xs sm:text-sm font-extrabold text-indacs-dark shadow-sm hover:bg-white transition"
-            >
-              <HelpCircle className="h-4 w-4 text-indacs-primary" />
-              <span>Situação Prática ({indicator.code})</span>
-              {showScenario ? (
-                <ChevronUp className="h-4 w-4" />
-              ) : (
-                <ChevronDown className="h-4 w-4" />
-              )}
-            </button>
-
+        {/* Clean Action Button at the Bottom of the Cartilha Sheet */}
+        <div className="relative z-20 bg-indacs-primary/95 px-4 py-3 text-white">
+          <div className="mx-auto max-w-xl flex items-center justify-center">
             <button
               type="button"
               onClick={() => setShowLimits((v) => !v)}
-              className="inline-flex items-center gap-1.5 rounded-full border border-white/35 bg-white/10 px-4 py-2 text-xs sm:text-sm font-bold text-white hover:bg-white/20 transition"
+              className="inline-flex items-center gap-1.5 rounded-full border border-white/35 bg-white/10 px-4 py-1.5 text-xs sm:text-sm font-bold text-white hover:bg-white/20 transition"
             >
               <Scale className="h-4 w-4" />
               <span>Limites de Atuação e Fonte</span>
@@ -278,85 +256,7 @@ export default function IndicatorDetailModal({
           </div>
         </div>
 
-        {/* Expandable Section 1: Interactive Scenario */}
-        {showScenario && scenario && (
-          <div className="border-t-2 border-indacs-primary/20 bg-indacs-creamLight p-4 sm:p-6 space-y-4">
-            <div className="mx-auto max-w-xl space-y-3">
-              <div className="flex items-center justify-between gap-2">
-                <span className="rounded-full bg-indacs-primary/15 px-3 py-0.5 text-xs font-extrabold text-indacs-primary">
-                  {scenario.badge}
-                </span>
-                <span className="text-[11px] text-indacs-muted">Caso fictício</span>
-              </div>
-
-              <h3 className="text-base sm:text-lg font-extrabold text-indacs-ink">
-                {scenario.title}
-              </h3>
-              <p className="rounded-xl bg-white p-3.5 text-xs sm:text-sm text-indacs-ink border border-indacs-primary/15 leading-relaxed">
-                {scenario.context}
-              </p>
-
-              <div className="rounded-2xl bg-white p-4 border border-indacs-primary/20 space-y-2.5">
-                <p className="text-sm font-extrabold text-indacs-ink">
-                  {scenario.question}
-                </p>
-                <div className="space-y-2">
-                  {scenario.options.map((opt) => {
-                    const isSelected = selectedOptionId === opt.id;
-                    let btnStyle =
-                      'border-indacs-primary/25 bg-indacs-creamLight/60 text-indacs-ink hover:bg-indacs-cream';
-                    if (isSelected) {
-                      btnStyle = opt.isCorrect
-                        ? 'border-emerald-600 bg-emerald-50 text-emerald-950'
-                        : 'border-amber-600 bg-amber-50 text-amber-950';
-                    }
-                    return (
-                      <button
-                        key={opt.id}
-                        type="button"
-                        onClick={() => setSelectedOptionId(opt.id)}
-                        className={`w-full text-left rounded-xl border-2 p-3 text-xs sm:text-sm font-semibold transition flex items-start gap-2.5 ${btnStyle}`}
-                      >
-                        <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-indacs-primary text-xs font-extrabold uppercase text-white">
-                          {opt.id}
-                        </span>
-                        <span>{opt.text}</span>
-                      </button>
-                    );
-                  })}
-                </div>
-
-                {selectedOption && (
-                  <div
-                    role="status"
-                    className={`mt-3 rounded-xl border-2 p-3 text-xs sm:text-sm ${
-                      selectedOption.isCorrect
-                        ? 'border-emerald-600 bg-emerald-50 text-emerald-950'
-                        : 'border-amber-600 bg-amber-50 text-amber-950'
-                    }`}
-                  >
-                    <div className="flex items-center gap-1.5 font-extrabold">
-                      {selectedOption.isCorrect ? (
-                        <>
-                          <CheckCircle2 className="h-4 w-4 text-emerald-700 shrink-0" />
-                          <span>Conduta alinhada à Nota Metodológica!</span>
-                        </>
-                      ) : (
-                        <>
-                          <AlertTriangle className="h-4 w-4 text-amber-700 shrink-0" />
-                          <span>Atenção aos limites e prazos da Nota!</span>
-                        </>
-                      )}
-                    </div>
-                    <p className="mt-1 leading-relaxed">{selectedOption.feedback}</p>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Expandable Section 2: Limits & Sources */}
+        {/* Expandable Section: Limits & Sources */}
         {showLimits && (
           <div className="border-t-2 border-indacs-primary/20 bg-white p-4 sm:p-6">
             <div className="mx-auto max-w-xl space-y-3 text-xs sm:text-sm">

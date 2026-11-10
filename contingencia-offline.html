@@ -153,8 +153,7 @@
       <p>Cartilha interativa dos indicadores de qualidade da APS para Agentes Comunitários de Saúde</p>
       <div class="nav-tabs">
         <button class="tab-btn active" id="tab-t1" onclick="showTab('t1')">Tela 1: Indicadores C1–C7</button>
-        <button class="tab-btn" id="tab-t2" onclick="showTab('t2')">Tela 2: Situações C2 e C4</button>
-        <button class="tab-btn" id="tab-t3" onclick="showTab('t3')">Telas 3 e 4: Jornadas que Cuidam (X)</button>
+        <button class="tab-btn" id="tab-t3" onclick="showTab('t3')">Jornadas que Cuidam (X)</button>
       </div>
     </header>
 
@@ -179,41 +178,6 @@
         <div id="voice-status" style="display:none;margin-top:8px;font-size:13px;font-weight:700;color:var(--green-primary);"></div>
       </div>
       <div id="cards-container" class="grid-2"></div>
-    </section>
-
-    <!-- TELA 2 -->
-    <section id="sec-t2" style="display:none;">
-      <div class="card">
-        <span class="badge badge-valid">Caso Prioritário Validado • C2 Desenvolvimento Infantil</span>
-        <h2 style="margin:8px 0 4px;">Visita ao bebê recém-nascido com 18 dias de vida</h2>
-        <p style="font-size:14px;">Em visita à casa de Dona Camila (caso fictício), o bebê Lucas tem 18 dias. A mãe ainda não agendou a 1ª consulta na UBS nem atualizou o cadastro porque pensou em esperar os 2 meses, e pede para você "passar uma pomada no umbigo vermelho".</p>
-        <ul style="font-size:13px;">
-          <li><strong>O que observar:</strong> Idade (18 dias — dentro dos primeiros 30 dias), cadastro, Caderneta da Criança, ausência da 1ª consulta e sinal de alerta no coto umbilical.</li>
-          <li><strong>O que cabe ao ACS:</strong> Realizar a 1ª visita até o 30º dia de vida (e a 2ª até os 6 meses, registrando no MIVDT como "recém-nascido" ou "criança"), atualizar cadastro, conferir vacinas e orientar sem prescrever conduta.</li>
-          <li><strong>Quando comunicar à equipe:</strong> Imediatamente, para viabilizar a 1ª consulta médica/enfermagem até o 30º dia e avaliar o umbigo.</li>
-          <li><strong>Fonte exata:</strong> Cartilha INDACS, pág. 3 • Nota Metodológica C2 (SEI 0054824593), Seção 3, item 16-A/D e Seção 4, Quadro 01 e Quadro 04 (págs. 2, 5 e 6).</li>
-        </ul>
-        <p style="font-weight:800;font-size:14px;">Pergunta: Como o ACS deve agir nesta visita?</p>
-        <button class="opt-btn" onclick="showFeedback('c2', false, 'Incorreto! O ACS nunca prescreve pomadas ou condutas clínicas, e esperar 2 meses perderia a janela de 30 dias da 1ª consulta (Nota C2, Boa Prática A).')">A) Indicar uma pomada e dizer que pode levar o bebê à UBS só aos 2 meses.</button>
-        <button class="opt-btn" onclick="showFeedback('c2', true, 'Correto! Você cumpriu a 1ª visita até os 30 dias (Nota C2, Quadro 04), respeitou os limites do ACS (não prescreveu conduta) e acionou a equipe para a consulta de até 30 dias.')">B) Atualizar cadastro, conferir Caderneta, registrar a 1ª visita (até 30 dias), orientar sem prescrever e comunicar imediatamente à equipe.</button>
-        <div id="fb-c2"></div>
-      </div>
-
-      <div class="card">
-        <span class="badge badge-valid">Caso Prioritário Validado • C4 Pessoa com Diabetes</span>
-        <h2 style="margin:8px 0 4px;">Moradora com diabetes que relata ferida no pé e parada do remédio</h2>
-        <p style="font-size:14px;">Dona Severina (62 anos, caso fictício) parou o remédio há 2 semanas por "não sentir nada", não passa em consulta há 8 meses e mostra uma rachadura com pequena ferida no pé direito que quase não dói.</p>
-        <ul style="font-size:13px;">
-          <li><strong>O que observar:</strong> Abandono medicamentoso, ferida no pé sem dor (sinal de risco!), atraso na consulta semestral e intervalo mínimo de 30 dias entre as 2 visitas anuais do indicador.</li>
-          <li><strong>O que cabe ao ACS:</strong> Perguntar sobre feridas/rachaduras nos pés, verificar uso de medicamentos, orientar continuidade do cuidado, registrar visita no MIVDT e comunicar risco à equipe.</li>
-          <li><strong>Limites normativos (Nota C4):</strong> O exame clínico do pé diabético (SIGTAP 03.01.04.009-5, Quadro 07) é privativo de médicos, enfermeiros, fisioterapeutas, farmacêuticos e terapeutas ocupacionais. O ACS nunca manipula feridas nem altera doses.</li>
-          <li><strong>Fonte exata:</strong> Cartilha INDACS, pág. 5 • Nota Metodológica C4 (SEI 0055986848), Seção 3, item 16-D e Seção 4, Quadros 01, 05 e 07 (págs. 2, 4 e 6).</li>
-        </ul>
-        <p style="font-weight:800;font-size:14px;">Pergunta: Qual é a decisão correta do ACS?</p>
-        <button class="opt-btn" onclick="showFeedback('c4', false, 'Atenção! O exame clínico do pé diabético (Quadro 07 da Nota C4) e o ajuste de medicamentos não cabem ao ACS.')">A) Fazer o exame clínico do pé diabético no domicílio e mandar tomar metade do comprimido.</button>
-        <button class="opt-btn" onclick="showFeedback('c4', true, 'Excelente! Ao ACS cabe perguntar sobre feridas/rachaduras nos pés, verificar uso de medicamentos, realizar ao menos 2 visitas em 12 meses (intervalo mín. 30 dias) e comunicar imediatamente o sinal de risco à equipe.')">B) Observar o relato da ferida e parada do remédio, orientar sem prescrever conduta, registrar a visita e comunicar imediatamente o risco à equipe.</button>
-        <div id="fb-c4"></div>
-      </div>
     </section>
 
     <!-- TELA 3 & 4 -->
@@ -248,7 +212,7 @@
     ];
 
     function showTab(t) {
-      ['t1','t2','t3'].forEach(id => {
+      ['t1','t3'].forEach(id => {
         document.getElementById('sec-' + id).style.display = (id === t) ? 'block' : 'none';
         document.getElementById('tab-' + id).classList.toggle('active', id === t);
       });
