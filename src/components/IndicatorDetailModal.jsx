@@ -32,18 +32,19 @@ export default function IndicatorDetailModal({
     <div className="mx-auto max-w-3xl pb-8">
       {/* Main Cartilha Sheet */}
       <div className="overflow-hidden rounded-[2rem] border-2 border-indacs-primary/20 bg-indacs-cream shadow-lg">
-        {/* Top Bar identical to Cartilha Pages 2-9 */}
-        <div className="flex items-center justify-between rounded-b-[1.75rem] bg-indacs-primary px-5 py-4 text-white shadow-sm">
+        {/* Top Bar identical to Cartilha Pages 2-9 with enhanced Return button */}
+        <div className="flex items-center justify-between rounded-b-[1.75rem] bg-indacs-primary px-4 sm:px-6 py-4 text-white shadow-sm">
           <span className="text-2xl sm:text-3xl font-extrabold tracking-tight">
             Indacs
           </span>
           <button
             type="button"
             onClick={onClose}
-            className="inline-flex items-center gap-1.5 rounded-full bg-indacs-cream px-5 py-1.5 text-sm sm:text-base font-bold text-indacs-dark shadow-sm hover:bg-white transition"
+            aria-label="Retornar à página inicial da cartilha"
+            className="inline-flex items-center gap-2 rounded-full bg-white px-5 py-2 text-sm sm:text-base font-extrabold text-indacs-dark shadow-md hover:bg-indacs-cream hover:scale-105 active:scale-95 transition-all"
           >
-            <ArrowLeft className="h-4 w-4" />
-            <span className="underline">Voltar</span>
+            <ArrowLeft className="h-5 w-5 stroke-[2.5]" />
+            <span>Retornar</span>
           </button>
         </div>
 
@@ -292,6 +293,21 @@ export default function IndicatorDetailModal({
           <span>SECRETARIA DA SAÚDE DE CAMPINA GRANDE - PB</span>
           <span>PET SAÚDE DIGITAL | UFCG</span>
         </div>
+      </div>
+
+      {/* Floating Action Button (FAB) at Bottom-Right for Easy One-Handed Return on Mobile */}
+      <div className="fixed bottom-6 right-5 sm:right-8 z-50">
+        <button
+          type="button"
+          onClick={onClose}
+          aria-label="Retornar aos indicadores"
+          className="group flex items-center gap-2 rounded-full bg-indacs-dark text-white px-5 py-3.5 shadow-2xl border-2 border-white/60 hover:bg-indacs-primary active:scale-95 transition-all"
+        >
+          <ArrowLeft className="h-5 w-5 stroke-[2.5] transition-transform group-hover:-translate-x-1" />
+          <span className="font-extrabold text-sm sm:text-base tracking-wide">
+            Retornar
+          </span>
+        </button>
       </div>
     </div>
   );
