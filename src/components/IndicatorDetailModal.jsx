@@ -205,29 +205,59 @@ export default function IndicatorDetailModal({
         </div>
 
         {/* Cartilha Speech Bubbles + Original Character Illustration over the Green Hill */}
-        <div className="relative mt-6 pt-4 px-4 sm:px-8 overflow-hidden">
-          <div className="mx-auto max-w-xl grid grid-cols-1 sm:grid-cols-2 gap-3 items-start relative z-10">
-            {/* Left Question Bubble */}
-            <div className="rounded-2xl border-2 border-indacs-dark bg-indacs-cream px-4 py-3 text-center shadow-sm">
-              <p className="text-sm sm:text-base font-medium text-indacs-ink">
+        <div className="relative mt-6 pt-4 px-3 sm:px-8 overflow-hidden">
+          <div className="mx-auto max-w-xl grid grid-cols-2 gap-2.5 sm:gap-5 items-end relative z-10 pb-4">
+            {/* Left Question Speech Bubble */}
+            <div className="relative mb-3 sm:mb-4 rounded-[1.5rem] border-2 border-indacs-dark bg-indacs-cream px-3 py-2.5 sm:px-5 sm:py-3.5 text-center shadow-sm">
+              <p className="text-xs sm:text-base font-semibold text-indacs-ink leading-snug">
                 {indicator.summaryQuestion}
               </p>
+              {/* Speech bubble tail pointing down-right toward the user character */}
+              <svg
+                viewBox="0 0 28 20"
+                className="pointer-events-none absolute right-5 sm:right-8 -bottom-[18px] h-[18px] w-[26px]"
+                aria-hidden="true"
+              >
+                <path
+                  d="M2 0 L24 18 L18 0 Z"
+                  fill="#E2EFD7"
+                />
+                <path
+                  d="M2 0 L24 18 L18 0"
+                  fill="none"
+                  stroke="#0F4D25"
+                  strokeWidth="2.2"
+                  strokeLinejoin="round"
+                  strokeLinecap="round"
+                />
+              </svg>
             </div>
 
-            {/* Right ACS Answer Bubble */}
-            <div className="rounded-2xl bg-indacs-primary px-4 py-3 text-center text-white shadow-md">
-              <p className="text-xs sm:text-sm font-medium leading-relaxed">
+            {/* Right ACS Answer Speech Bubble */}
+            <div className="relative rounded-[1.5rem] bg-indacs-primary px-3 py-2.5 sm:px-5 sm:py-3.5 text-center text-white shadow-md">
+              <p className="text-[11px] sm:text-sm font-medium leading-snug sm:leading-relaxed">
                 {indicator.summaryAnswer}
               </p>
+              {/* Speech bubble tail pointing down-left toward the ACS character */}
+              <svg
+                viewBox="0 0 28 20"
+                className="pointer-events-none absolute left-5 sm:left-8 -bottom-[16px] h-[18px] w-[26px]"
+                aria-hidden="true"
+              >
+                <path
+                  d="M10 0 L4 18 L24 0 Z"
+                  fill="#145E2F"
+                />
+              </svg>
             </div>
           </div>
 
           {/* Character Illustration */}
-          <div className="relative z-10 mt-2 flex justify-center">
+          <div className="relative z-10 mt-1 flex justify-center">
             <img
               src={indicator.illustration}
               alt={`Ilustração ${indicator.code}`}
-              className="h-56 sm:h-64 w-auto object-contain drop-shadow"
+              className="h-52 sm:h-64 w-auto object-contain drop-shadow"
             />
           </div>
 
