@@ -2,24 +2,14 @@ import React, { useState, useEffect, useMemo, useRef } from 'react';
 import {
   Search,
   X,
-  Calendar as CalendarIcon,
   Mic,
-  MicOff,
-  ArrowLeft
+  MicOff
 } from 'lucide-react';
 import {
   INDICATORS,
   ROUTINE_SEARCH_CHIPS
 } from './data/indacsData';
-import IntentionWelcomeBanner from './components/IntentionWelcomeBanner';
 import IndicatorDetailModal from './components/IndicatorDetailModal';
-import CalendarJornadas from './components/CalendarJornadas';
-
-const STORAGE_KEYS = {
-  MARKS: 'indacs2_journey_marks_v1',
-  INTENTION: 'indacs2_next_intention_v1',
-  MODULE_DISABLED: 'indacs2_calendar_disabled_v1'
-};
 
 const normalizeText = (str = '') =>
   str
@@ -123,8 +113,6 @@ function CartilhaIconButton({ ind, onClick, showSnippet }) {
 }
 
 export default function App() {
-  // 'cartilha' | 'calendario'
-  const [activeScreen, setActiveScreen] = useState('cartilha');
   const [selectedIndicator, setSelectedIndicator] = useState(null);
 
   // Search & Voice Filter state
@@ -133,37 +121,6 @@ export default function App() {
   const [voiceFeedback, setVoiceFeedback] = useState('');
   const [voiceError, setVoiceError] = useState('');
   const recognitionRef = useRef(null);
-
-  // Calendar state
-  const [isDemoSharedMode, setIsDemoSharedMode] = useState(false);
-  const [isModuleDisabled, setIsModuleDisabled] = useState(() => {
-    try {
-      return localStorage.getItem(STORAGE_KEYS.MODULE_DISABLED) === 'true';
-    } catch {
-      return false;
-    }
-  });
-
-  const [journeyMarks, setJourneyMarks] = useState(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEYS.MARKS);
-      return saved ? JSON.parse(saved) : {};
-    } catch {
-      return {};
-    }
-  });
-
-  const [intentionData, setIntentionData] = useState(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEYS.INTENTION);
-      return saved ? JSON.parse(saved) : null;
-    } catch {
-      return null;
-    }
-  });
-
-  const [showWelcomeIntentionBanner, setShowWelcomeIntentionBanner] = useState(true);
-  const [isSimulatedReturn, setIsSimulatedReturn] = useState(false);
 
   const stopVoiceSearch = () => {
     if (recognitionRef.current) {
@@ -259,38 +216,6 @@ export default function App() {
     };
   }, []);
 
-  // Persist calendar data to localStorage
-  useEffect(() => {
-    if (isDemoSharedMode) return;
-    try {
-      localStorage.setItem(STORAGE_KEYS.MARKS, JSON.stringify(journeyMarks));
-    } catch {
-      // Ignore
-    }
-  }, [journeyMarks, isDemoSharedMode]);
-
-  useEffect(() => {
-    if (isDemoSharedMode) return;
-    try {
-      if (intentionData) {
-        localStorage.setItem(STORAGE_KEYS.INTENTION, JSON.stringify(intentionData));
-      } else {
-        localStorage.removeItem(STORAGE_KEYS.INTENTION);
-      }
-    } catch {
-      // Ignore
-    }
-  }, [intentionData, isDemoSharedMode]);
-
-  useEffect(() => {
-    if (isDemoSharedMode) return;
-    try {
-      localStorage.setItem(STORAGE_KEYS.MODULE_DISABLED, String(isModuleDisabled));
-    } catch {
-      // Ignore
-    }
-  }, [isModuleDisabled, isDemoSharedMode]);
-
   // Search & Voice filtering across C1–C7
   const filteredIndicators = useMemo(() => {
     const processed = preprocessVoiceAndTextQuery(searchQuery);
@@ -312,9 +237,7 @@ export default function App() {
           ind.directAcsGoal.description,
           ...ind.tags,
           ...ind.acsCompetencies,
-          ind.professionalBoundaries.notAcsRole,
-          ind.scenario?.title,
-          ind.scenario?.context
+          ind.professionalBoundaries.notAcsRole
         ].join(' ')
       );
 
@@ -341,145 +264,17 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  // Calendar handlers
-  const handleToggleDayMark = (dateKey) => {
-    setJourneyMarks((prev) => {
-      const current = prev[dateKey] || { marked: false, reflection: '' };
-      return {
-        ...prev,
-        [dateKey]: { ...current, marked: !current.marked }
-      };
-    });
-  };
-
-  const handleSaveDayReflection = (dateKey, reflectionText) => {
-    setJourneyMarks((prev) => {
-      const current = prev[dateKey] || { marked: false, reflection: '' };
-      return {
-        ...prev,
-        [dateKey]: { ...current, reflection: reflectionText }
-      };
-    });
-  };
-
-  const handleSaveIntention = (text, dateLabel = '06/11/2026') => {
-    setIntentionData({
-      text,
-      dateLabel,
-      updatedAt: new Date().toISOString()
-    });
-    setShowWelcomeIntentionBanner(true);
-  };
-
-  const handleUpdateIntention = (newText) => {
-    setIntentionData((prev) => ({
-      ...(prev || {}),
-      text: newText,
-      dateLabel: prev?.dateLabel || 'Jornada anterior',
-      updatedAt: new Date().toISOString()
-    }));
-  };
-
-  const handleClearIntention = () => {
-    setIntentionData(null);
-    setIsSimulatedReturn(false);
-  };
-
-  const handleClearAllRecords = () => {
-    setJourneyMarks({});
-    setIntentionData(null);
-    setIsSimulatedReturn(false);
-    try {
-      localStorage.removeItem(STORAGE_KEYS.MARKS);
-      localStorage.removeItem(STORAGE_KEYS.INTENTION);
-    } catch {
-      // Ignore
-    }
-  };
-
-  const handleToggleDemoSharedMode = () => {
-    setIsDemoSharedMode((prev) => {
-      const next = !prev;
-      if (next) {
-        try {
-          localStorage.removeItem(STORAGE_KEYS.MARKS);
-          localStorage.removeItem(STORAGE_KEYS.INTENTION);
-        } catch {
-          // Ignore
-        }
-      }
-      return next;
-    });
-  };
-
-  const handleSimulateNextDayReturn = () => {
-    if (!intentionData?.text) {
-      setIntentionData({
-        text: 'Escutar com calma antes de orientar e lembrar que meu papel tem limites seguros.',
-        dateLabel: '06/11/2026'
-      });
-    }
-    setIsSimulatedReturn(true);
-    setShowWelcomeIntentionBanner(true);
-    setSelectedIndicator(null);
-    setActiveScreen('cartilha');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
   const isFiltering = Boolean(searchQuery.trim());
 
   return (
     <div className="min-h-screen flex flex-col bg-indacs-cream text-indacs-ink">
       <main className="mx-auto w-full max-w-3xl flex-1 px-4 sm:px-6 pt-5 pb-12">
-        {/* TELA 4 WELCOME BANNER: Shown only if user saved an intention in the calendar */}
-        {!isModuleDisabled &&
-          showWelcomeIntentionBanner &&
-          intentionData?.text &&
-          !selectedIndicator &&
-          activeScreen === 'cartilha' && (
-            <IntentionWelcomeBanner
-              intentionData={intentionData}
-              onUpdateIntention={handleUpdateIntention}
-              onClearIntention={handleClearIntention}
-              onDismissBanner={() => setShowWelcomeIntentionBanner(false)}
-              isSimulatedReturn={isSimulatedReturn}
-            />
-          )}
-
         {/* INDICATOR PAGE (Identical to Pages 2-9 of CARTILHA INDACS.pdf) */}
         {selectedIndicator ? (
           <IndicatorDetailModal
             indicator={selectedIndicator}
             onClose={() => setSelectedIndicator(null)}
           />
-        ) : activeScreen === 'calendario' ? (
-          /* CALENDAR SCREEN ("Jornadas que Cuidam") */
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <button
-                type="button"
-                onClick={() => setActiveScreen('cartilha')}
-                className="inline-flex items-center gap-1.5 rounded-full bg-indacs-primary px-4 py-2 text-xs sm:text-sm font-bold text-white shadow-sm hover:bg-indacs-dark transition"
-              >
-                <ArrowLeft className="h-4 w-4" />
-                <span>Voltar para a Cartilha Indacs</span>
-              </button>
-            </div>
-            <CalendarJornadas
-              journeyMarks={journeyMarks}
-              onToggleDayMark={handleToggleDayMark}
-              onSaveDayReflection={handleSaveDayReflection}
-              intentionData={intentionData}
-              onSaveIntention={handleSaveIntention}
-              onClearIntention={handleClearIntention}
-              onClearAllRecords={handleClearAllRecords}
-              isDemoSharedMode={isDemoSharedMode}
-              onToggleDemoSharedMode={handleToggleDemoSharedMode}
-              isModuleDisabled={isModuleDisabled}
-              onToggleModuleDisabled={() => setIsModuleDisabled((prev) => !prev)}
-              onSimulateNextDayReturn={handleSimulateNextDayReturn}
-            />
-          </div>
         ) : (
           /* HOME SCREEN (Identical to Page 1 of CARTILHA INDACS.pdf + Voice Filter) */
           <div className="space-y-6">
@@ -715,42 +510,20 @@ export default function App() {
         )}
       </main>
 
-      {/* Footer matching Page 1 of Cartilha + Discreet Calendar Button */}
+      {/* Footer matching Page 1 of Cartilha */}
       <footer className="mt-auto bg-indacs-primary text-white py-3.5 px-4 sm:px-8">
-        <div className="mx-auto max-w-3xl flex flex-wrap items-center justify-between gap-3">
+        <div className="mx-auto max-w-3xl flex items-center justify-between gap-3">
           <button
             type="button"
-            onClick={() => {
-              setSelectedIndicator(null);
-              setActiveScreen('cartilha');
-            }}
+            onClick={() => setSelectedIndicator(null)}
             className="text-xl sm:text-2xl font-extrabold tracking-tight hover:opacity-90"
           >
             Indacs
           </button>
 
-          <div className="flex items-center gap-3">
-            <button
-              type="button"
-              onClick={() => {
-                setSelectedIndicator(null);
-                setActiveScreen(
-                  activeScreen === 'calendario' ? 'cartilha' : 'calendario'
-                );
-              }}
-              className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3.5 py-1.5 text-xs font-bold text-indacs-cream hover:bg-white/25 transition"
-            >
-              <CalendarIcon className="h-3.5 w-3.5" />
-              <span>
-                {activeScreen === 'calendario'
-                  ? 'Ver Cartilha'
-                  : 'Meu Calendário (X)'}
-              </span>
-            </button>
-            <span className="text-xs sm:text-sm font-bold tracking-wide text-white/95">
-              PET SAÚDE DIGITAL | UFCG
-            </span>
-          </div>
+          <span className="text-xs sm:text-sm font-bold tracking-wide text-white/95">
+            PET SAÚDE DIGITAL | UFCG
+          </span>
         </div>
       </footer>
     </div>

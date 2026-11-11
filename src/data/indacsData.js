@@ -756,12 +756,3 @@ export const INDICATORS = [
     }
   }
 ];
-
-export const INTENTION_SUGGESTIONS = [
-  'Escutar com calma antes de orientar',
-  'Lembrar que meu papel tem limites seguros',
-  'Olhar com carinho para as crianças e idosos da microárea',
-  'Não levar o peso de tudo sozinho(a) — conversar com a equipe',
-  'Reconhecer o valor de cada conversa na calçada',
-  'Ir um passo de cada vez hoje'
-];

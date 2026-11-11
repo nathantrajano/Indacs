@@ -151,21 +151,7 @@
       <div style="font-size:12px;font-weight:700;opacity:0.9;">GAT 8 | PET Saúde Digital – UFCG • Kalilka &amp; Nathan</div>
       <h1>Indacs 2.0 <span style="font-size:16px;font-weight:600;">(Contingência Offline)</span></h1>
       <p>Cartilha interativa dos indicadores de qualidade da APS para Agentes Comunitários de Saúde</p>
-      <div class="nav-tabs">
-        <button class="tab-btn active" id="tab-t1" onclick="showTab('t1')">Tela 1: Indicadores C1–C7</button>
-        <button class="tab-btn" id="tab-t3" onclick="showTab('t3')">Jornadas que Cuidam (X)</button>
-      </div>
     </header>
-
-    <div id="welcome-bridge" class="card" style="display:none; border-color: var(--green-primary); background: var(--cream-light);">
-      <div style="font-size:11px;font-weight:800;color:var(--green-primary);text-transform:uppercase;">Tela 4 • A ponte para a próxima jornada</div>
-      <div style="font-weight:800;font-size:16px;margin-top:2px;">Intenção guardada para sua jornada (sem metas nem cobrança):</div>
-      <p id="welcome-bridge-text" style="font-style:italic;font-weight:700;color:var(--green-dark);margin:8px 0;"></p>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;">
-        <button class="btn-outline" onclick="clearIntention()">Deixar ir / Abandonar</button>
-        <button class="btn-outline" onclick="document.getElementById('welcome-bridge').style.display='none'">Ocultar</button>
-      </div>
-    </div>
 
     <!-- TELA 1 -->
     <section id="sec-t1">
@@ -179,25 +165,6 @@
       </div>
       <div id="cards-container" class="grid-2"></div>
     </section>
-
-    <!-- TELA 3 & 4 -->
-    <section id="sec-t3" style="display:none;">
-      <div class="card">
-        <h2 style="margin:0 0 6px;">Meu Calendário “Jornadas que Cuidam” (Novembro 2026)</h2>
-        <p style="font-size:13px;color:var(--muted);margin:0 0 8px;">O <strong>X</strong> significa <strong>“reconheço minha jornada”</strong> — nunca metas, frequência ou vigilância. Toque em qualquer dia para marcar ou desmarcar o X.</p>
-        <div id="cal-grid" class="cal-grid"></div>
-      </div>
-
-      <div class="card">
-        <h3 style="margin:0 0 6px;">Tela 4 • A ponte para a próxima jornada</h3>
-        <p style="font-size:13px;color:var(--muted);margin:0 0 8px;">“O que você gostaria de levar para a próxima jornada?” (Salvo apenas neste navegador; nunca insira dados de pacientes).</p>
-        <input id="intention-input" class="search-input" type="text" placeholder="Ex.: Escutar com calma antes de orientar..." />
-        <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;">
-          <button class="btn-primary" onclick="saveIntention()">Guardar intenção</button>
-          <button class="btn-outline" onclick="clearAllLocal()">Apagar todos os registros</button>
-        </div>
-      </div>
-    </section>
   </div>
 
   <script>
@@ -210,13 +177,6 @@
       { code:'C6', title:'Pessoa idosa', status:'rev', meta:'Pelo menos 2 visitas em 12 meses (intervalo mín. 30 dias) para pessoas ≥ 60 anos. Observar risco de quedas, isolamento, cuidador e vacina influenza.', fonte:'Cartilha pág. 7 • Nota C6 (SEI 0056053813), Quadros 01 e 04.' },
       { code:'C7', title:'Mulher na prevenção do câncer', status:'rev', meta:'Sem nº fixo de visitas na nota. Foco em busca ativa: HPV (9–14 anos), saúde sexual/reprodutiva (14–69), colo do útero (25–64) e mama (50–69), incluindo homens transgênero.', fonte:'Cartilha págs. 8–9 • Nota C7 (SEI 0054641718), Quadro 01.' }
     ];
-
-    function showTab(t) {
-      ['t1','t3'].forEach(id => {
-        document.getElementById('sec-' + id).style.display = (id === t) ? 'block' : 'none';
-        document.getElementById('tab-' + id).classList.toggle('active', id === t);
-      });
-    }
 
     function renderCards() {
       const q = (document.getElementById('q-input').value || '').toLowerCase();
@@ -235,72 +195,6 @@
         `;
         box.appendChild(div);
       });
-    }
-
-    function showFeedback(id, ok, text) {
-      const el = document.getElementById('fb-' + id);
-      el.className = ok ? 'feedback-ok' : 'feedback-warn';
-      el.innerHTML = '<strong>' + (ok ? '✓ Conduta segura: ' : '⚠ Atenção: ') + '</strong>' + text;
-    }
-
-    function getMarks() {
-      try { return JSON.parse(localStorage.getItem('indacs2_contingency_marks') || '{}'); } catch { return {}; }
-    }
-
-    function toggleDay(d) {
-      const m = getMarks();
-      m[d] = !m[d];
-      try { localStorage.setItem('indacs2_contingency_marks', JSON.stringify(m)); } catch {}
-      renderCal();
-    }
-
-    function renderCal() {
-      const m = getMarks();
-      const grid = document.getElementById('cal-grid');
-      grid.innerHTML = '';
-      for (let d = 1; d <= 30; d++) {
-        const btn = document.createElement('button');
-        btn.className = 'cal-day' + (m[d] ? ' marked' : '');
-        btn.onclick = () => toggleDay(d);
-        btn.innerHTML = `<span style="font-size:12px;">${d}/11</span><span class="x-mark">${m[d] ? '✕' : ''}</span>`;
-        grid.appendChild(btn);
-      }
-    }
-
-    function saveIntention() {
-      const val = document.getElementById('intention-input').value.trim();
-      if (!val) return;
-      try { localStorage.setItem('indacs2_contingency_intention', val); } catch {}
-      loadIntention();
-      alert('Intenção guardada para a próxima jornada!');
-    }
-
-    function loadIntention() {
-      try {
-        const val = localStorage.getItem('indacs2_contingency_intention');
-        const box = document.getElementById('welcome-bridge');
-        if (val) {
-          box.style.display = 'block';
-          document.getElementById('welcome-bridge-text').textContent = '“' + val + '”';
-        } else {
-          box.style.display = 'none';
-        }
-      } catch {}
-    }
-
-    function clearIntention() {
-      try { localStorage.removeItem('indacs2_contingency_intention'); } catch {}
-      loadIntention();
-    }
-
-    function clearAllLocal() {
-      try {
-        localStorage.removeItem('indacs2_contingency_marks');
-        localStorage.removeItem('indacs2_contingency_intention');
-      } catch {}
-      document.getElementById('intention-input').value = '';
-      renderCal();
-      loadIntention();
     }
 
     let recInstance = null;
@@ -351,8 +245,6 @@
     }
 
     renderCards();
-    renderCal();
-    loadIntention();
   </script>
 </body>
 </html>
