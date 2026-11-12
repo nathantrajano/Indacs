@@ -1,11 +1,5 @@
-import React, { useState } from 'react';
-import {
-  ArrowLeft,
-  Scale,
-  ChevronDown,
-  ChevronUp,
-  BookOpen
-} from 'lucide-react';
+import React from 'react';
+import { ArrowLeft } from 'lucide-react';
 
 function CartilhaCheckItem({ text }) {
   return (
@@ -22,8 +16,6 @@ export default function IndicatorDetailModal({
   indicator,
   onClose
 }) {
-  const [showLimits, setShowLimits] = useState(false);
-
   if (!indicator) return null;
 
   const s = indicator.cartilhaSections || {};
@@ -268,58 +260,8 @@ export default function IndicatorDetailModal({
           />
         </div>
 
-        {/* Clean Action Button at the Bottom of the Cartilha Sheet */}
-        <div className="relative z-20 bg-indacs-primary/95 px-4 py-3 text-white">
-          <div className="mx-auto max-w-xl flex items-center justify-center">
-            <button
-              type="button"
-              onClick={() => setShowLimits((v) => !v)}
-              className="inline-flex items-center gap-1.5 rounded-full border border-white/35 bg-white/10 px-4 py-1.5 text-xs sm:text-sm font-bold text-white hover:bg-white/20 transition"
-            >
-              <Scale className="h-4 w-4" />
-              <span>Limites de Atuação e Fonte</span>
-              {showLimits ? (
-                <ChevronUp className="h-4 w-4" />
-              ) : (
-                <ChevronDown className="h-4 w-4" />
-              )}
-            </button>
-          </div>
-        </div>
-
-        {/* Expandable Section: Limits & Sources */}
-        {showLimits && (
-          <div className="border-t-2 border-indacs-primary/20 bg-white p-4 sm:p-6">
-            <div className="mx-auto max-w-xl space-y-3 text-xs sm:text-sm">
-              <div className="rounded-xl bg-indacs-creamLight p-3.5 border border-indacs-primary/20">
-                <strong className="block text-indacs-primary mb-1">
-                  O que NÃO compete ao ACS (Limites de atuação):
-                </strong>
-                <p className="text-indacs-ink">{indicator.professionalBoundaries.notAcsRole}</p>
-                <p className="mt-1.5 text-xs text-indacs-muted">
-                  <strong>Outras categorias:</strong> {indicator.professionalBoundaries.otherProfessionals}
-                </p>
-              </div>
-
-              <div className="rounded-xl bg-indacs-creamLight/60 p-3.5 border border-indacs-primary/15">
-                <strong className="block text-indacs-primary mb-1">
-                  Critério de cálculo do indicador ({indicator.code}):
-                </strong>
-                <p className="text-indacs-ink">{indicator.calculationCriteria.formula}</p>
-              </div>
-
-              <div className="flex items-start gap-2 text-xs text-indacs-muted pt-1">
-                <BookOpen className="h-4 w-4 text-indacs-primary shrink-0 mt-0.5" />
-                <div>
-                  <p><strong>Fonte:</strong> {indicator.sources.cartilha} • {indicator.sources.nota}</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
         {/* Bottom Footer identical to Cartilha */}
-        <div className="flex items-center justify-between bg-indacs-primary px-5 py-3 text-[11px] sm:text-xs font-bold text-white">
+        <div className="relative z-20 flex items-center justify-between bg-indacs-primary px-5 py-3 text-[11px] sm:text-xs font-bold text-white">
           <span>SECRETARIA DA SAÚDE DE CAMPINA GRANDE - PB</span>
           <span>PET SAÚDE DIGITAL | UFCG</span>
         </div>
