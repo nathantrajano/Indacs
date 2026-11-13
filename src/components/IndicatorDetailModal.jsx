@@ -1,13 +1,14 @@
 import React from 'react';
 import { ArrowLeft } from 'lucide-react';
 
-function CartilhaCheckItem({ text }) {
+function CartilhaTopicItem({ text }) {
   return (
     <li className="flex items-start gap-2.5 text-sm sm:text-base text-indacs-ink leading-snug">
-      <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 border-indacs-primary bg-indacs-cream text-indacs-primary font-extrabold text-xs">
-        ✓
-      </span>
-      <span>{text}</span>
+      <span
+        className="mt-1.5 sm:mt-2 h-2 w-2 shrink-0 rounded-full bg-indacs-primary"
+        aria-hidden="true"
+      />
+      <span className="flex-1">{text}</span>
     </li>
   );
 }
@@ -81,7 +82,7 @@ export default function IndicatorDetailModal({
             {s.singleList && (
               <ul className="space-y-2.5 pl-2 sm:pl-6">
                 {s.singleList.map((item, idx) => (
-                  <CartilhaCheckItem key={idx} text={item} />
+                  <CartilhaTopicItem key={idx} text={item} />
                 ))}
               </ul>
             )}
@@ -99,7 +100,7 @@ export default function IndicatorDetailModal({
                     </h3>
                     <ul className="space-y-2">
                       {box.items.map((it, i) => (
-                        <CartilhaCheckItem key={i} text={it} />
+                        <CartilhaTopicItem key={i} text={it} />
                       ))}
                     </ul>
                   </div>
@@ -115,7 +116,7 @@ export default function IndicatorDetailModal({
                 </h3>
                 <ul className="space-y-2 pl-1">
                   {s.topItems.map((item, idx) => (
-                    <CartilhaCheckItem key={idx} text={item} />
+                    <CartilhaTopicItem key={idx} text={item} />
                   ))}
                 </ul>
               </div>
@@ -133,12 +134,12 @@ export default function IndicatorDetailModal({
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <ul className="space-y-2.5">
                     {s.leftColumn?.map((item, idx) => (
-                      <CartilhaCheckItem key={idx} text={item} />
+                      <CartilhaTopicItem key={idx} text={item} />
                     ))}
                   </ul>
                   <ul className="space-y-2.5">
                     {s.rightColumn?.map((item, idx) => (
-                      <CartilhaCheckItem key={idx} text={item} />
+                      <CartilhaTopicItem key={idx} text={item} />
                     ))}
                   </ul>
                 </div>
@@ -156,7 +157,7 @@ export default function IndicatorDetailModal({
                       </h3>
                       <ul className="space-y-2">
                         {grp.items.map((it, i) => (
-                          <CartilhaCheckItem key={i} text={it} />
+                          <CartilhaTopicItem key={i} text={it} />
                         ))}
                       </ul>
                     </div>
@@ -175,7 +176,7 @@ export default function IndicatorDetailModal({
                         </div>
                         <ul className="space-y-2">
                           {grp.items.map((it, i) => (
-                            <CartilhaCheckItem key={i} text={it} />
+                            <CartilhaTopicItem key={i} text={it} />
                           ))}
                         </ul>
                       </div>
