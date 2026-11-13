@@ -13,16 +13,6 @@ export const APP_METADATA = {
   principle: 'Cada dia vivido merece reconhecimento. Cada novo dia merece a liberdade de recomeçar.'
 };
 
-export const ROUTINE_SEARCH_CHIPS = [
-  { label: 'Recém-nascido (30 dias)', query: 'recém-nascido 30 dias' },
-  { label: 'Pé diabético / feridas', query: 'feridas pés diabetes' },
-  { label: 'Vacina criança / HPV', query: 'vacina' },
-  { label: 'Pressão alta', query: 'pressão hipertensão' },
-  { label: 'Gestante / Puerpério', query: 'gestante puerpério' },
-  { label: 'Pessoa idosa / Quedas', query: 'idosa quedas acamadas' },
-  { label: 'Faltosos / Busca ativa', query: 'faltosos busca ativa' }
-];
-
 export const INDICATORS = [
   {
     id: 'C1',

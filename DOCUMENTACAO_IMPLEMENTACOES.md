@@ -13,7 +13,8 @@ Este documento registra as alterações e melhorias implementadas no projeto **I
 | **11/11/2026** | `c5b25f3` | Refatoração | Remoção completa do calendário (*Jornadas que Cuidam*) no app e na contingência offline |
 | **11/11/2026** | `60eef02` | Interface (UI) | Transformação dos blocos de diálogo em balões de fala com ponteiros SVG |
 | **12/11/2026** | `6c2d667` | Refatoração | Remoção da seção e do botão de **Limites de Atuação e Fonte** |
-| **12/11/2026** | — | Interface (UI) | Substituição do formato checklist por marcadores reais de tópicos (bullet points) |
+| **12/11/2026** | `59ceb9a` | Interface (UI) | Substituição do formato checklist por marcadores reais de tópicos (bullet points) |
+| **12/11/2026** | — | Refatoração | Remoção completa do módulo de pesquisa (busca textual e filtro por voz) |
 
 ---
 
@@ -66,11 +67,24 @@ Para finalizar o enxugamento da ficha de cada indicador, foram removidos o botã
 
 ---
 
-### 6. Transição de Checklist para Marcadores de Tópicos (`12/11/2026`)
+### 6. Transição de Checklist para Marcadores de Tópicos (`12/11/2026` — `59ceb9a`)
 Os itens da seção *"O que compete ao ACS"* deixaram de usar ícones de caixa de verificação/checklist (`[✓]`) e foram convertidos em **tópicos pontuados (bullet points)** limpos e alinhados verticalmente com a tipografia da Cartilha.
 - **Arquivo modificado:**
   - `src/components/IndicatorDetailModal.jsx` (`CartilhaTopicItem` com bullet dot estilizado em `indacs-primary`)
 - **Impacto:** Eliminação do aspecto de "tarefa a checar/marcar", evidenciando que se tratam de orientações e tópicos de atuação.
+
+---
+
+### 7. Remoção do Módulo de Pesquisa e Filtro por Voz (`12/11/2026`)
+Para tornar a aplicação ainda mais limpa e 100% idêntica à capa da Cartilha INDACS impressa (página 1), foi removido todo o módulo de pesquisa:
+- **Remoções:**
+  - Campo de busca textual e botão de microfone (reconhecimento nativo de voz em `pt-BR`).
+  - Lógica de stopwords, processamento fonético/textual e chips de busca rápida.
+  - Snippets de busca e estados de microfone.
+- **Arquivos modificados:**
+  - `src/App.jsx` (código simplificado de ~530 para ~130 linhas; home screen focada exclusivamente no cabeçalho e na grade piramidal 3-2-2 dos 7 indicadores).
+  - `src/data/indacsData.js` (remoção de `ROUTINE_SEARCH_CHIPS`).
+  - `public/contingencia-offline.html` e `contingencia-offline.html` (remoção da barra de busca e reconhecimento de voz).
 
 ---
 

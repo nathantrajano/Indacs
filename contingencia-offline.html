@@ -46,30 +46,6 @@
     }
     header h1 { margin: 4px 0; font-size: 28px; }
     header p { margin: 4px 0 12px; font-size: 14px; color: var(--cream-bg); }
-    .nav-tabs {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
-    button {
-      cursor: pointer;
-      font-family: inherit;
-      min-height: 44px;
-      border-radius: 12px;
-      border: none;
-      font-weight: 700;
-      font-size: 14px;
-      padding: 10px 14px;
-      transition: all 0.15s ease;
-    }
-    .tab-btn {
-      background: rgba(255,255,255,0.14);
-      color: #fff;
-    }
-    .tab-btn.active {
-      background: var(--cream-bg);
-      color: var(--green-dark);
-    }
     .card {
       background: var(--cream-card);
       border: 2px solid rgba(20, 94, 47, 0.22);
@@ -87,58 +63,11 @@
     }
     .badge-valid { background: #D1FAE5; color: #065F46; border: 1px solid #6EE7B7; }
     .badge-rev { background: #FEF3C7; color: #92400E; border: 1px solid #FCD34D; }
-    .search-input {
-      width: 100%;
-      padding: 12px 14px;
-      border-radius: 14px;
-      border: 2px solid var(--green-primary);
-      font-size: 15px;
-      margin-top: 8px;
-    }
     .grid-2 {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
       gap: 14px;
     }
-    .btn-primary { background: var(--green-primary); color: #fff; }
-    .btn-outline { background: #fff; color: var(--green-primary); border: 2px solid var(--green-primary); }
-    .cal-grid {
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      gap: 6px;
-      margin-top: 10px;
-    }
-    .cal-day {
-      background: #fff;
-      border: 2px solid rgba(20,94,47,0.2);
-      border-radius: 12px;
-      min-height: 54px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: space-between;
-      padding: 6px;
-    }
-    .cal-day.marked {
-      background: var(--cream-light);
-      border-color: var(--green-primary);
-    }
-    .x-mark {
-      font-size: 20px;
-      font-weight: 900;
-      color: var(--green-primary);
-    }
-    .opt-btn {
-      display: block;
-      width: 100%;
-      text-align: left;
-      margin-top: 8px;
-      background: var(--cream-light);
-      color: var(--ink);
-      border: 2px solid rgba(20,94,47,0.25);
-    }
-    .feedback-ok { background: #ECFDF5; border: 2px solid #059669; color: #064E3B; padding: 12px; border-radius: 12px; margin-top: 10px; }
-    .feedback-warn { background: #FFFBEB; border: 2px solid #D97706; color: #78350F; padding: 12px; border-radius: 12px; margin-top: 10px; }
   </style>
 </head>
 <body>
@@ -153,16 +82,8 @@
       <p>Cartilha interativa dos indicadores de qualidade da APS para Agentes Comunitários de Saúde</p>
     </header>
 
-    <!-- TELA 1 -->
+    <!-- INDICADORES -->
     <section id="sec-t1">
-      <div class="card">
-        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
-          <label for="q-input" style="font-weight:800;font-size:17px;">O que preciso saber hoje?</label>
-          <button id="voice-btn" class="btn-primary" type="button" onclick="toggleVoiceContingency()">🎤 Filtrar por Voz</button>
-        </div>
-        <input id="q-input" class="search-input" type="search" placeholder="Digite ou fale no microfone (ex.: 30 dias, recém-nascido, diabetes, pés, vacina, gestante, idoso, HPV...)" oninput="renderCards()" />
-        <div id="voice-status" style="display:none;margin-top:8px;font-size:13px;font-weight:700;color:var(--green-primary);"></div>
-      </div>
       <div id="cards-container" class="grid-2"></div>
     </section>
   </div>
@@ -179,10 +100,9 @@
     ];
 
     function renderCards() {
-      const q = (document.getElementById('q-input').value || '').toLowerCase();
       const box = document.getElementById('cards-container');
       box.innerHTML = '';
-      DATA.filter(d => (d.code + ' ' + d.title + ' ' + d.meta + ' ' + d.fonte).toLowerCase().includes(q)).forEach(d => {
+      DATA.forEach(d => {
         const div = document.createElement('div');
         div.className = 'card';
         div.innerHTML = `
@@ -197,55 +117,7 @@
       });
     }
 
-    let recInstance = null;
-    let isListening = false;
-
-    function toggleVoiceContingency() {
-      const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
-      const statusEl = document.getElementById('voice-status');
-      const btnEl = document.getElementById('voice-btn');
-      if (!SpeechRec) {
-        statusEl.style.display = 'block';
-        statusEl.textContent = 'Seu navegador não suporta reconhecimento de voz nativo. Use o Chrome ou Safari.';
-        return;
-      }
-      if (isListening && recInstance) {
-        recInstance.stop();
-        isListening = false;
-        btnEl.textContent = '🎤 Filtrar por Voz';
-        return;
-      }
-      recInstance = new SpeechRec();
-      recInstance.lang = 'pt-BR';
-      recInstance.interimResults = true;
-      recInstance.onstart = () => {
-        isListening = true;
-        btnEl.textContent = '⏹ Parar Voz';
-        statusEl.style.display = 'block';
-        statusEl.textContent = 'Ouvindo... Fale uma palavra da rotina (ex.: diabetes, recém-nascido, vacina).';
-      };
-      recInstance.onresult = (ev) => {
-        let txt = '';
-        for (let i = 0; i < ev.results.length; i++) txt += ev.results[i][0].transcript;
-        txt = txt.replace(/[.,!?]+$/g, '').trim();
-        document.getElementById('q-input').value = txt;
-        statusEl.textContent = 'Filtrando por voz: “' + txt + '”';
-        renderCards();
-      };
-      recInstance.onerror = () => {
-        isListening = false;
-        btnEl.textContent = '🎤 Filtrar por Voz';
-        statusEl.textContent = 'Não foi possível capturar o áudio. Verifique a permissão do microfone.';
-      };
-      recInstance.onend = () => {
-        isListening = false;
-        btnEl.textContent = '🎤 Filtrar por Voz';
-      };
-      recInstance.start();
-    }
-
     renderCards();
   </script>
 </body>
 </html>
-
